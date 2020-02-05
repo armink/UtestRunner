@@ -11,6 +11,7 @@
 #
 import argparse
 import os
+import platform
 import signal
 import subprocess
 import sys
@@ -63,8 +64,12 @@ class QemuRunner:
             return
         # starting the new process for running QEMU
         cmd = 'qemu-system-arm -nographic -M vexpress-a9 -kernel ' + self.elf_path + ' -sd ' + self.sd_path
-        self.sub_proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True, bufsize=0,
-                                         creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+        if platform.system() == "Windows":
+            self.sub_proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=0,
+                                             creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+        else:
+            self.sub_proc = subprocess.Popen("exec " + cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=0,
+                                             shell=True)
         event = threading.Event()
 
         # RT-Thread console log recorder with QEMU process
@@ -117,7 +122,12 @@ class QemuRunner:
 
     def destroy(self):
         self.log_recorder_alive = False
-        os.kill(self.sub_proc.pid, signal.CTRL_BREAK_EVENT)
+        if platform.system() == "Windows":
+            # os.kill(self.sub_proc.pid, signal.CTRL_BREAK_EVENT)
+            self.sub_proc.kill()
+        else:
+            self.sub_proc.kill()
+            # os.killpg(os.getpgid(self.sub_proc.pid), signal.SIGTERM)
         time.sleep(0.5)
         logger.info("QEMU runner destroy")
 

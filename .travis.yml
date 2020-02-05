@@ -1,14 +1,22 @@
-language: c
+language: python
+sudo: required
 
 notifications:
   email: false
 
-before_script:
+python:
+  - "3.7"
 
+install:
   - sudo apt-get update
-  - "sudo apt-get -yqq install scons qemu || true"
+  - "sudo apt-get -yqq install scons qemu git || true"
   - "qemu-system-arm --version || true"
   - "wget -q https://github.com/RT-Thread/toolchains-ci/releases/download/arm-2017q2-v6/gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2 && sudo tar xjf gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2 -C /opt && export RTT_EXEC_PATH=/opt/gcc-arm-none-eabi-6-2017-q2-update/bin && /opt/gcc-arm-none-eabi-6-2017-q2-update/bin/arm-none-eabi-gcc --version || true"
+  - "git clone https://github.com/armink/EasyFlashAutoTestBSP"
+  - "scons -j4 -C EasyFlashAutoTestBSP || true"
+
 stage: test
 script:
-  - python ./action-a/echo.py
+  - python3 qemu_runner.py --elf $PWD/EasyFlashAutoTestBSP/rtthread.elf --sd $PWD/EasyFlashAutoTestBSP/sd.bin
+  - cat rtt_console.log
+
