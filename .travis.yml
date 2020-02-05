@@ -1,0 +1,14 @@
+language: c
+
+notifications:
+  email: false
+
+before_script:
+
+  - sudo apt-get update
+  - "sudo apt-get -yqq install scons qemu || true"
+  - "qemu-system-arm --version || true"
+  - "wget -q https://github.com/RT-Thread/toolchains-ci/releases/download/arm-2017q2-v6/gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2 && sudo tar xjf gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2 -C /opt && export RTT_EXEC_PATH=/opt/gcc-arm-none-eabi-6-2017-q2-update/bin && /opt/gcc-arm-none-eabi-6-2017-q2-update/bin/arm-none-eabi-gcc --version || true"
+stage: test
+script:
+  - python ./action-a/echo.py
