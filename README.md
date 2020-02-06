@@ -1,6 +1,6 @@
 # Utest 自动测试机器人
 
-![GitHub Action](https://github.com/armink/UtestRunner/workflows/A%20workflow%20for%20my%20Hello%20World%20file/badge.svg)
+![GitHub Action](https://github.com/armink/UtestRunner/workflows/AutoTestCI/badge.svg)
 ![Travis CI](https://api.travis-ci.com/armink/UtestRunner.svg?branch=master)
 
 ## what
