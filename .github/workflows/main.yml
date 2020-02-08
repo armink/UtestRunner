@@ -5,18 +5,22 @@ jobs:
     name: AutoTest
     runs-on: ubuntu-latest    
     steps:
-    - uses: actions/checkout@v1 
+    - uses: actions/checkout@v1
+      env :
+        TEST_BSP_ROOT: "../AutoTestBsp"
     - name: prepare env
       run: |
         sudo apt-get update
         sudo apt-get -yqq install scons qemu git
         wget -q https://github.com/RT-Thread/toolchains-ci/releases/download/arm-2017q2-v6/gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2
         sudo tar xjf gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2 -C /opt
+    - name: build bsp
+      run: |
         export RTT_EXEC_PATH=/opt/gcc-arm-none-eabi-6-2017-q2-update/bin
         /opt/gcc-arm-none-eabi-6-2017-q2-update/bin/arm-none-eabi-gcc --version
-        git clone https://github.com/armink/EasyFlashAutoTestBSP
-        scons -j4 -C EasyFlashAutoTestBSP
-    - name: startup ci
+        git clone https://github.com/armink/EasyFlashAutoTestBSP $TEST_BSP_ROOT
+        scons -j4 -C $TEST_BSP_ROOT
+    - name: startup test
       run: |
-        python3 qemu_runner.py --elf $PWD/EasyFlashAutoTestBSP/rtthread.elf --sd $PWD/EasyFlashAutoTestBSP/sd.bin
+        python3 qemu_runner.py --elf $TEST_BSP_ROOT/rtthread.elf --sd $TEST_BSP_ROOT/sd.bin
         cat rtt_console.log
