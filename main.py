@@ -19,8 +19,8 @@ if __name__ == '__main__':
     # test code
     os.environ['PATH'] += ';D:/Program/RTT/env/tools/qemu/qemu32'
     sys.argv = ['qemu_runner.py',
-                '--elf', 'D:/Program/RTT/rt-thread/bsp/qemu-vexpress-a9/Debug/rtthread.elf',
-                '--sd', 'D:/Program/RTT/rt-thread/bsp/qemu-vexpress-a9/sd.bin']
+                '--elf', 'D:/Program/RTT/EasyFlashAutoTestBSP/Debug/rtthread.elf',
+                '--sd', 'D:/Program/RTT/EasyFlashAutoTestBSP/sd.bin']
     qemu_runner.main()
 
     # runner = QemuRunner('D:/Program/RTT/rt-thread/bsp/qemu-vexpress-a9/Debug/rtthread.elf', 'D:/Program/RTT/rt-thread/bsp/qemu-vexpress-a9/sd.bin', 5)
