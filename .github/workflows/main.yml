@@ -19,7 +19,7 @@ jobs:
         export RTT_EXEC_PATH=/opt/gcc-arm-none-eabi-6-2017-q2-update/bin
         /opt/gcc-arm-none-eabi-6-2017-q2-update/bin/arm-none-eabi-gcc --version
         git clone https://github.com/armink/EasyFlashAutoTestBSP $TEST_BSP_ROOT
-        scons -j4 -C $TEST_BSP_ROOT
+        scons -j$(nproc) -C $TEST_BSP_ROOT
     - name: Start test
       run: |
         python3 qemu_runner.py --elf $TEST_BSP_ROOT/rtthread.elf --sd $TEST_BSP_ROOT/sd.bin
