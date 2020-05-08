@@ -95,16 +95,18 @@ class QemuRunner:
             self.logs_lock.acquire()
             self.logs.clear()
             self.logs_lock.release()
-
             self.is_executing = True
-            cmb_str = name + '\r\n'
+
             # send command to qemu
+            cmb_str = name + '\r\n'
             for s in cmb_str:
                 self.sub_proc.stdin.write(bytes(s, encoding='utf8'))
                 # delay for wait qemu UART device receive finish
                 time.sleep(0.001)
             self.sub_proc.stdin.flush()
+
             # wait command execute finish
+            event.clear()
             signaled = event.wait(timeout=timeout)
             self.is_executing = False
 
