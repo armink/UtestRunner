@@ -27,8 +27,9 @@ logger = logging.getLogger(LOG_TAG)
 
 
 class QemuRunner:
-    def __init__(self, elf_path, sd_path, delay):
+    def __init__(self, machine, elf_path, sd_path, delay):
         logging.basicConfig(level=LOG_LVL, format='%(asctime)s %(name)s %(levelname)s: %(message)s', datefmt=None)
+        self.machine = machine
         self.elf_path = elf_path
         self.sd_path = sd_path
         self.delay = delay
@@ -63,7 +64,11 @@ class QemuRunner:
             logger.error("QEMU environment check FAILED.")
             return
         # starting the new process for running QEMU
-        cmd = 'qemu-system-arm -nographic -M vexpress-a9 -kernel ' + self.elf_path + ' -sd ' + self.sd_path
+        cmd = 'qemu-system-arm -nographic -M {} -kernel {}'.format(self.machine, self.elf_path)
+        
+        if self.sd_path != "None" :
+            cmd = cmd + ' -sd ' + self.sd_path
+
         if platform.system() == "Windows":
             self.sub_proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=0,
                                              creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
@@ -136,6 +141,13 @@ class QemuRunner:
 
 def main():
     parser = argparse.ArgumentParser(description='QEMU runner for RT-Thread utest', prog=os.path.basename(sys.argv[0]))
+  
+    parser.add_argument('--machine',
+                        metavar='machine',
+                        help='virtualize machine for running QEMU',
+                        default="vexpress-a9",
+                        type=str,
+                        required=False)
 
     parser.add_argument('--elf',
                         metavar='path',
@@ -145,7 +157,9 @@ def main():
     parser.add_argument('--sd',
                         metavar='path',
                         help='SD filesystem binary file for QEMU',
-                        required=True)
+                        default="None",
+                        type=str,
+                        required=False)
 
     parser.add_argument('--delay',
                         metavar='seconds',
@@ -155,7 +169,7 @@ def main():
                         required=False)
 
     args = parser.parse_args()
-    runner = QemuRunner(args.elf, args.sd, args.delay)
+    runner = QemuRunner(args.machine, args.elf, args.sd, args.delay)
     if not runner.run():
         sys.exit(-1)
 
