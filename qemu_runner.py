@@ -118,10 +118,17 @@ class QemuRunner:
             self.logs_lock.acquire()
             logs = self.logs
             self.logs_lock.release()
+            if logs == []:
+                logger.error("Command exec failed!")
             return signaled, logs
 
         time.sleep(self.delay)
         utest = Utest(exec_utest_cmd)
+        if utest.init_result == False:
+            logger.error("Utest init failed!")
+            self.destroy()
+            return False
+
         success = utest.test_all()
         self.destroy()
 
