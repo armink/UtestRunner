@@ -27,8 +27,9 @@ logger = logging.getLogger(LOG_TAG)
 
 
 class QemuRunner:
-    def __init__(self, machine, elf_path, sd_path, delay):
+    def __init__(self, system, machine, elf_path, sd_path, delay):
         logging.basicConfig(level=LOG_LVL, format='%(asctime)s %(name)s %(levelname)s: %(message)s', datefmt=None)
+        self.system = system
         self.machine = machine
         self.elf_path = elf_path
         self.sd_path = sd_path
@@ -50,7 +51,7 @@ class QemuRunner:
                 text += str(line, encoding="utf8") + '\r\n'
             return text
 
-        result = exec_cmd('qemu-system-arm --version')
+        result = exec_cmd('qemu-system-{} --version'.format(self.system))
         check_ok = (result.find('version') != -1)
         if check_ok:
             self.env_version = result
@@ -64,7 +65,7 @@ class QemuRunner:
             logger.error("QEMU environment check FAILED.")
             return
         # starting the new process for running QEMU
-        cmd = 'qemu-system-arm -nographic -M {} -kernel {}'.format(self.machine, self.elf_path)
+        cmd = 'qemu-system-{} -nographic -M {} -kernel {}'.format(self.system, self.machine, self.elf_path)
         
         if self.sd_path != "None" :
             cmd = cmd + ' -sd ' + self.sd_path
@@ -149,6 +150,13 @@ class QemuRunner:
 def main():
     parser = argparse.ArgumentParser(description='QEMU runner for RT-Thread utest', prog=os.path.basename(sys.argv[0]))
   
+    parser.add_argument('--system',
+                        metavar='system_type',
+                        help='System type of the machine to be simulated，such as arm.',
+                        default="arm",
+                        type=str,
+                        required=False)
+
     parser.add_argument('--machine',
                         metavar='machine',
                         help='virtualize machine for running QEMU',
@@ -176,7 +184,7 @@ def main():
                         required=False)
 
     args = parser.parse_args()
-    runner = QemuRunner(args.machine, args.elf, args.sd, args.delay)
+    runner = QemuRunner(args.system, args.machine, args.elf, args.sd, args.delay)
     if not runner.run():
         sys.exit(-1)
 
