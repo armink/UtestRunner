@@ -13,13 +13,13 @@ utest 是 RT-Thread 自带的单元测试框架，本项目为其提供自动化
 
 ## how
 
-### STEP1 准备 BSP
+### 1. 基于QEMU平台运行自动化测试
+
+#### STEP1 准备 BSP
 
 准备一个可以集成测试用例的 BSP 工程，支持 Scons 构建，并保证可以构建成功，并生成 bin 或 elf。
 
-> 注意：目前测试机器人暂时 **只支持** QEMU ，建议将测试用例支持 QEMU
-
-### STEP2 准备运行环境
+#### STEP2 准备运行环境
 
 运行环境需要支持以下条件：
 
@@ -34,7 +34,7 @@ utest 是 RT-Thread 自带的单元测试框架，本项目为其提供自动化
 
 项目已提供好其配置模板，详见根目录对应文件及文件夹
 
-### STEP3 运行测试机器人（以 QEMU 为例）
+#### STEP3 运行测试机器人（以 QEMU 为例）
 
 QEMU 测试机器人代码位于 `qemu_runner.py` ，help 信息如下：
 
@@ -70,3 +70,49 @@ WARNING: Image format was not specified for 'D:/Program/RTT/rt-thread/bsp/qemu-v
 D:\Program\Python\UtestQemuRunner>
 ```
 
+### 2. 基于真实硬件平台运行自动化测试
+
+#### STEP1 准备 BSP
+
+准备一个可以集成测试用例的 BSP 工程，支持 Scons 构建，并保证可以构建成功，并生成 bin 或 elf。
+
+#### STEP2 准备运行环境
+
+运行环境需要支持以下条件：
+
+- python3
+- scons
+- pyserial
+- pyserial-asyncio
+
+>  注意：目前不支持通过 CI 环境执行。
+
+#### STEP3 运行测试机器人（以 Serial 为例）
+
+Serial 测试机器人代码位于 `serial _runner.py` ，help 信息如下：
+
+```shell
+python .\serial_runner.py --help
+usage: serial_runner.py [-h] [--port port] [--baudrate bps] [--delay seconds]
+
+serial runner for RT-Thread utest
+
+options:
+  -h, --help       show this help message and exit
+  --port port      port for serial
+  --baudrate bps   baudrate for serial
+  --delay seconds  delay some seconds for serial running finish
+```
+
+先将 BSP 编译出来 elf 烧录到开发板上，运行起来。
+
+然后传入开发板对应的串口号和波特率即可启动机器人，以下是示例：
+
+```shell
+python.exe .\serial_runner.py --port=com16 --baudrate=115200
+2023-07-04 12:04:25,289 asyncio DEBUG: Using proactor: IocpProactor
+2023-07-04 12:04:31,419 utest DEBUG: Get a testcase: testcases.utest.pass_tc, timeout: 10
+2023-07-04 12:04:31,420 utest INFO: Start test: testcases.utest.pass_tc
+2023-07-04 12:04:32,552 utest INFO: Test passed
+2023-07-04 12:04:32,552 serial_runner INFO: serial runner destroy
+```
